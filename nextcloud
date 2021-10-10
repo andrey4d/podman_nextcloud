@@ -88,6 +88,10 @@ function clean_pod() {
     ${ENGINE} network rm "${NETWORK_NAME}"
 }
 
+function gen_kube() {
+    ${ENGINE} generate kube "${POD_NAME}" > ${KUBE_FILE}.yaml
+}
+
 #MAIN
 case "${1}" in
   clean)
@@ -103,7 +107,10 @@ case "${1}" in
   ps)
     ${ENGINE} ps
     ;;
+  kube)
+    gen_kube
+    ;;
   *)
-    echo "Usage: $0 [run, clean, ps]" >&2
+    echo "Usage: $0 [run, clean, ps, kube]" >&2
     ;;
 esac
