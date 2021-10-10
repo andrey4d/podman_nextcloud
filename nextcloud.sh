@@ -24,7 +24,7 @@ if [[ ! $(get_object_id "container" "${CONTAINER_DB_NAME}") ]]; then
       "-d --rm" \
       "${CONTAINER_DB_NAME}" \
       "-e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} -e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud" \
-      "-v $(pwd)/${VOLUME_DB}:/var/lib/mysql:z" \
+      "-v ${VOLUME_ROOT}/${VOLUME_DB}:/var/lib/mysql:z" \
       "${IMAGE_DB}" \
       "--transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb-file-per-table=1 --skip-innodb-read-only-compressed"
   else
@@ -39,7 +39,7 @@ if [[ ! $(get_object_id "container" "${CONTAINER_APP_NAME}") ]]; then
       "-d --rm" \
       "${CONTAINER_APP_NAME}" \
       "-e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=nextcloud -e MYSQL_USER=nextcloud -e MYSQL_HOST=127.0.0.1:3306" \
-      "-v $(pwd)/${VOLUME_APP}:/var/www/html:z" \
+      "-v ${VOLUME_ROOT}/${VOLUME_APP}:/var/www/html:z" \
       "${IMAGE_APP}" \
       ""
   else
@@ -48,7 +48,7 @@ fi
 
 if [[ ! $(get_object_id "container" "${CONTAINER_WEB_NAME}") ]]; then
     echo "Create container ${CONTAINER_WEB_NAME} in pod ${POD_NAME}."
-    CERT_DIR="$(pwd)/${VOLUME_NGINX}"
+    CERT_DIR="${VOLUME_ROOT}/${VOLUME_NGINX}"
 
     if [[ ! -d "${CERT_DIR}" ]]; then
       mkdir -p "${CERT_DIR}"
@@ -61,10 +61,10 @@ if [[ ! $(get_object_id "container" "${CONTAINER_WEB_NAME}") ]]; then
       "-d --rm" \
       "${CONTAINER_WEB_NAME}" \
       "" \
-      "-v $(pwd)/${VOLUME_APP}:/var/www/html:z \
-      -v $(pwd)/nginx/nginx_https.conf:/etc/nginx/nginx.conf:z \
-      -v $(pwd)/nginx/${DOMAIN}.crt:/etc/ssl/nginx/dvampere.crt:z \
-      -v $(pwd)/nginx/${DOMAIN}.key:/etc/ssl/nginx/dvampere.key:z" \
+      "-v ${VOLUME_ROOT}/${VOLUME_APP}:/var/www/html:z \
+      -v ${VOLUME_ROOT}/nginx/nginx_https.conf:/etc/nginx/nginx.conf:z \
+      -v ${VOLUME_ROOT}/nginx/${DOMAIN}.crt:/etc/ssl/nginx/dvampere.crt:z \
+      -v ${VOLUME_ROOT}/nginx/${DOMAIN}.key:/etc/ssl/nginx/dvampere.key:z" \
       "${IMAGE_WEB}" \
       ""
   else
