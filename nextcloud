@@ -93,6 +93,7 @@ function create_collabora() {
             openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
               -keyout "${CERT_DIR}/collabora-${DOMAIN}.key" \
               -out "${CERT_DIR}/collabora-${DOMAIN}.crt"
+            chmod a+r "${CERT_DIR}/collabora-${DOMAIN}.key"
           fi
 
           run_container \
