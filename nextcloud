@@ -103,7 +103,7 @@ function create_collabora() {
             "
             -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/ca-chain.cert.pem:z \
             -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/cert.pem:z \
-            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.key:/etc/coolwsd/cert.pem:z \
+            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.key:/etc/coolwsd/key.pem:z \
             " \
             "${IMAGE_COLLABORA}" \
             ""
