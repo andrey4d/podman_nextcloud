@@ -101,8 +101,8 @@ function create_collabora() {
             "${CONTAINER_COLLABORA_NAME}" \
             "-e username=${COLLABORA_ADMIN} -e password=${COLLABORA_PASSWORD} -e DONT_GEN_SSL_CERT=true" \
             "
-            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/ca-chain.cert.pem.crt:z \
-            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/cert.pem.crt:z \
+            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/ca-chain.cert.pem:z \
+            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/cert.pem:z \
             -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.key:/etc/coolwsd/cert.pem:z \
             " \
             "${IMAGE_COLLABORA}" \
