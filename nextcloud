@@ -97,15 +97,9 @@ function create_collabora() {
 
           run_container \
             "--pod ${POD_NAME}" \
-            "-d --rm" \
+            "-d --rm --cap-add MKNOD" \
             "${CONTAINER_COLLABORA_NAME}" \
-            "
-              -e 'dictionaries=en ru' \
-              -e username=${COLLABORA_ADMIN} \
-              -e password=${COLLABORA_PASSWORD} \
-              -e DONT_GEN_SSL_CERT=true \
-              --cap-add MKNOD \
-            " \
+            "-e 'dictionaries=en ru' -e username=${COLLABORA_ADMIN} -e password=${COLLABORA_PASSWORD} -e DONT_GEN_SSL_CERT=true" \
             "
             -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/ca-chain.cert.pem.crt:z \
             -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/cert.pem.crt:z \
