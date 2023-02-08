@@ -36,6 +36,7 @@ function create_db() {
       echo "Container ${CONTAINER_DB_NAME} already exists"
   fi
 }
+
 function create_nextcloud() {
   if [[ ! $(get_object_id "container" "${CONTAINER_APP_NAME}") ]]; then
       echo "Create container ${CONTAINER_APP_NAME} in pod ${POD_NAME}."
@@ -56,7 +57,7 @@ function create_nextcloud() {
 function create_nginx() {
   if [[ ! $(get_object_id "container" "${CONTAINER_WEB_NAME}") ]]; then
       echo "Create container ${CONTAINER_WEB_NAME} in pod ${POD_NAME}."
-      CERT_DIR="${VOLUME_NGINX}"
+      local CERT_DIR="${VOLUME_NGINX}"
 
       if [[ ! -d "${CERT_DIR}" ]]; then
         mkdir -p "${CERT_DIR}"
@@ -80,6 +81,41 @@ function create_nginx() {
     else
       echo "Container ${CONTAINER_WEB_NAME} already exists"
   fi
+}
+
+function create_collabora() {
+      if [[ ! $(get_object_id "container" "${CONTAINER_COLLABORA_NAME}") ]]; then
+          echo "Create container ${CONTAINER_COLLABORA_NAME} in pod ${POD_NAME}."
+          local CERT_DIR="${VOLUME_COLLABORA}"
+
+          if [[ ! -d "${CERT_DIR}" ]]; then
+            mkdir -p "${CERT_DIR}"
+            openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+              -keyout "${CERT_DIR}/collabora-${DOMAIN}.key" \
+              -out "${CERT_DIR}/collabora-${DOMAIN}.crt"
+          fi
+
+          run_container \
+            "--pod ${POD_NAME}" \
+            "-d --rm" \
+            "${CONTAINER_COLLABORA_NAME}" \
+            "
+              -e 'dictionaries=en ru' \
+              -e username=${COLLABORA_ADMIN} \
+              -e password=${COLLABORA_PASSWORD} \
+              -e DONT_GEN_SSL_CERT=true \
+              --cap-add MKNOD \
+            " \
+            "
+            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/ca-chain.cert.pem.crt:z \
+            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/cert.pem.crt:z \
+            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.key:/etc/coolwsd/cert.pem:z \
+            " \
+            "${IMAGE_COLLABORA}" \
+            ""
+        else
+          echo "Container ${CONTAINER_COLLABORA_NAME} already exists"
+      fi
 }
 
 function clean_pod() {
