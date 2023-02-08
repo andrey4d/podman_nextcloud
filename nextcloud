@@ -98,7 +98,7 @@ function create_collabora() {
 
           run_container \
             "--pod ${POD_NAME}" \
-            "-it --rm --cap-add MKNOD" \
+            "-d --rm --cap-add MKNOD" \
             "${CONTAINER_COLLABORA_NAME}" \
             "-e username=${COLLABORA_ADMIN} -e password=${COLLABORA_PASSWORD} -e DONT_GEN_SSL_CERT=true" \
             "
