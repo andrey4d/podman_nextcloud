@@ -130,7 +130,7 @@ function gen_kube() {
 
 #MAIN
 case "${1}" in
-  clean)
+  rm)
     clean_pod
     ;;
   run)
@@ -139,6 +139,7 @@ case "${1}" in
     create_db
     create_nextcloud
     create_nginx
+    create_collabora
     ;;
   ps)
     ${ENGINE} ps
@@ -147,6 +148,6 @@ case "${1}" in
     gen_kube
     ;;
   *)
-    echo "Usage: $0 [run, clean, ps, kube]" >&2
+    echo "Usage: $0 [run, rm, ps, kube]" >&2
     ;;
 esac
