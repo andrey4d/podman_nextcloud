@@ -61,7 +61,8 @@ function create_nginx() {
 
       if [[ ! -d "${CERT_DIR}" ]]; then
         mkdir -p "${CERT_DIR}"
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout "${CERT_DIR}/${DOMAIN}.key" -out "${CERT_DIR}/${DOMAIN}.crt"
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 -config "${OPENSSL_PROPERTIES}" \
+        -keyout "${CERT_DIR}/nginx.key" -out "${CERT_DIR}/nginx.crt"
         nginx_conf "${CERT_DIR}"
       fi
 
@@ -73,8 +74,8 @@ function create_nginx() {
         "
         -v ${VOLUME_APP}:/var/www/html:z \
         -v ${VOLUME_NGINX}/nginx_https.conf:/etc/nginx/nginx.conf:z \
-        -v ${VOLUME_NGINX}/${DOMAIN}.crt:/etc/ssl/nginx/SSLselfsigned.crt:z \
-        -v ${VOLUME_NGINX}/${DOMAIN}.key:/etc/ssl/nginx/SSLselfsigned.key:z \
+        -v ${VOLUME_NGINX}/nginx.crt:/etc/ssl/nginx/SSLselfsigned.crt:z \
+        -v ${VOLUME_NGINX}/nginx.key:/etc/ssl/nginx/SSLselfsigned.key:z \
         " \
         "${IMAGE_WEB}" \
         ""
@@ -90,10 +91,10 @@ function create_collabora() {
 
           if [[ ! -d "${CERT_DIR}" ]]; then
             mkdir -p "${CERT_DIR}"
-            openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-              -keyout "${CERT_DIR}/collabora-${DOMAIN}.key" \
-              -out "${CERT_DIR}/collabora-${DOMAIN}.crt"
-            chmod a+r "${CERT_DIR}/collabora-${DOMAIN}.key"
+            openssl req -x509 -nodes -days 365 -newkey rsa:2048 -config "${OPENSSL_PROPERTIES}" \
+              -keyout "${CERT_DIR}/collabora.key" \
+              -out "${CERT_DIR}/collabora.crt"
+            chmod a+r "${CERT_DIR}/collabora.key"
           fi
 
           run_container \
@@ -102,9 +103,9 @@ function create_collabora() {
             "${CONTAINER_COLLABORA_NAME}" \
             "-e username=${COLLABORA_ADMIN} -e password=${COLLABORA_PASSWORD} -e DONT_GEN_SSL_CERT=true" \
             "
-            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/ca-chain.cert.pem:z \
-            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.crt:/etc/coolwsd/cert.pem:z \
-            -v ${VOLUME_COLLABORA}/collabora-${DOMAIN}.key:/etc/coolwsd/key.pem:z \
+            -v ${VOLUME_COLLABORA}/collabora.crt:/etc/coolwsd/ca-chain.cert.pem:z \
+            -v ${VOLUME_COLLABORA}/collabora.crt:/etc/coolwsd/cert.pem:z \
+            -v ${VOLUME_COLLABORA}/collabora.key:/etc/coolwsd/key.pem:z \
             " \
             "${IMAGE_COLLABORA}" \
             ""
@@ -121,6 +122,17 @@ function clean_pod() {
 
 function gen_kube() {
     ${ENGINE} generate kube "${POD_NAME}" > ${KUBE_FILE}.yaml
+}
+
+function gen_systemd() {
+    ${ENGINE} generate systemd --name "${POD_NAME}" --new  --restart-policy on-failure -f
+    echo ""
+    echo "sudo cp *.service /etc/systemd/users"
+    echo "systemctl --user daemon-reload"
+    echo "systemctl --user start pod-nextcloud_pod.service"
+    echo "systemctl --user enable pod-nextcloud_pod.service"
+    echo ""
+
 }
 
 #MAIN
@@ -142,7 +154,11 @@ case "${1}" in
   kube)
     gen_kube
     ;;
+  systemd)
+    gen_systemd
+    ;;
+
   *)
-    echo "Usage: $0 [run, rm, ps, kube]" >&2
+    echo "Usage: $0 [run, rm, ps, kube, systemd]" >&2
     ;;
 esac
