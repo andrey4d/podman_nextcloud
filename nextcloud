@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#  Copyright (c) 2021. andrey4d.dev@gmail.com
+
 source nextcloud.properties
 
 function create_network() {
