@@ -127,7 +127,7 @@ function gen_kube() {
 function gen_systemd() {
     ${ENGINE} generate systemd --name "${POD_NAME}" --new  --restart-policy on-failure -f
     echo ""
-    echo "sudo cp *.service /etc/systemd/users"
+    echo "sudo cp *.service /etc/systemd/user/"
     echo "systemctl --user daemon-reload"
     echo "systemctl --user start pod-nextcloud_pod.service"
     echo "systemctl --user enable pod-nextcloud_pod.service"
